@@ -25,6 +25,7 @@ public class FramePrincipal extends javax.swing.JFrame {
     private DialogFilasColumnas dialogFilasColumnas;
     private int filas;
     private int columnas;
+    private Cuadricula cuadricula;
     /**
      * Creates new form FramePrincipal
      */
@@ -38,6 +39,18 @@ public class FramePrincipal extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         // Crear el JTextArea para el texto
         iniciarLista();
+        
+        txaEditor.addCaretListener(e -> {
+        int pos = txaEditor.getCaretPosition();
+        try {
+            int fila = txaEditor.getLineOfOffset(pos) + 1;  // Obtener la fila (línea)
+            int columna = pos - txaEditor.getLineStartOffset(fila - 1) + 1;  // Obtener la columna
+            lblPosicioCursor.setText("Fila: " + fila + ", Columna: " + columna);  // Actualizar la etiqueta
+        } catch (BadLocationException ex) {
+            ex.printStackTrace();
+            }
+        });
+        
         // Añadir un DocumentListener para actualizar los números de línea
         txaEditor.getDocument().addDocumentListener(new DocumentListener() {
             public void updateLineNumbers() {
@@ -73,6 +86,9 @@ public class FramePrincipal extends javax.swing.JFrame {
         pack();
     }
     
+    public String obtenerTextoEditor() {
+        return txaEditor.getText();
+    }
     
     public void iniciarLista(){
         txaEditor.setEnabled(false);
@@ -110,6 +126,8 @@ public class FramePrincipal extends javax.swing.JFrame {
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jbtInicio = new javax.swing.JButton();
+        jbtTerminar = new javax.swing.JButton();
+        lblPosicioCursor = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu2 = new javax.swing.JMenu();
 
@@ -145,6 +163,15 @@ public class FramePrincipal extends javax.swing.JFrame {
             }
         });
 
+        jbtTerminar.setText("Terminar");
+        jbtTerminar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtTerminarActionPerformed(evt);
+            }
+        });
+
+        lblPosicioCursor.setText("Fila: 1 , Columna: 1");
+
         jMenu2.setText("Reportes");
         jMenuBar1.add(jMenu2);
 
@@ -164,14 +191,20 @@ public class FramePrincipal extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(lblPosicioCursor)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jbtTerminar))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addGap(18, 18, 18)
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(35, 35, 35))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 652, Short.MAX_VALUE)
-                .addComponent(jButton1)
-                .addGap(27, 27, 27))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(35, 35, 35))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jButton1)
+                        .addGap(27, 27, 27))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -188,7 +221,10 @@ public class FramePrincipal extends javax.swing.JFrame {
                             .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButton1)
+                            .addComponent(jbtTerminar)
+                            .addComponent(lblPosicioCursor))))
                 .addGap(32, 32, 32))
         );
 
@@ -203,7 +239,7 @@ public class FramePrincipal extends javax.swing.JFrame {
 
     if (filas > 0 && columnas > 0) {
             // Configurar el tablero
-            Cuadricula cuadricula = new Cuadricula(filas, columnas);
+            cuadricula = new Cuadricula(filas, columnas);
 
             // Limpiar jPanel1 antes de agregar la cuadrícula
             jPanel1.removeAll();
@@ -223,6 +259,16 @@ public class FramePrincipal extends javax.swing.JFrame {
             pack();
         }
     }//GEN-LAST:event_jbtInicioActionPerformed
+    
+    private void actualizarCuadricula() {
+        String texto = txaEditor.getText();
+        cuadricula.leerTexto(texto);
+    }
+    
+    private void jbtTerminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTerminarActionPerformed
+        // TODO add your handling code here:
+        actualizarCuadricula();
+    }//GEN-LAST:event_jbtTerminarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -309,6 +355,8 @@ public class FramePrincipal extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JButton jbtInicio;
+    private javax.swing.JButton jbtTerminar;
+    private javax.swing.JLabel lblPosicioCursor;
     private javax.swing.JTextArea txaEditor;
     private javax.swing.JTextArea txaListaNumero;
     // End of variables declaration//GEN-END:variables

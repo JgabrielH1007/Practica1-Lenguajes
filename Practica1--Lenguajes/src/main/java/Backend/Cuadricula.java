@@ -6,9 +6,13 @@ package Backend;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 
 /**
  *
@@ -17,6 +21,7 @@ import javax.swing.JPanel;
 public class Cuadricula extends JPanel{
     private int filas;
     private int columnas;
+    private static final String BACKGROUND_COLOR_HEX = "#FF33FF";
     
     public Cuadricula(int filas, int columnas){
         this.filas = filas;
@@ -27,14 +32,54 @@ public class Cuadricula extends JPanel{
         Dimension tamaño = new Dimension((350), (350));
         
         setPreferredSize(tamaño);
-        for (int i = 0; i < filas * columnas; i++) {
-            JLabel label = new JLabel();
-            label.setBackground(Color.RED);
-            label.setBorder(BorderFactory.createLineBorder(Color.RED));
-            this.add(label);
-            
-        }
         
     }
     
+       public void leerTexto(String texto) {
+        // Limpiar el panel antes de llenar con nuevos cuadros
+        removeAll();
+
+        // Dividir el texto en líneas
+        String[] lineas = texto.split("\\n");
+
+        List<Cuadro> cuadros = new ArrayList<>();
+        for (String linea : lineas) {
+            if (linea.trim().startsWith("'")) {
+                // Tratar todo lo que sigue al apóstrofe como un comentario
+                String comentario = linea.trim();
+                Cuadro cuadro = new Cuadro();
+                cuadro.asignarColores(comentario);
+                cuadros.add(cuadro);
+            } else {
+                // Dividir la línea en palabras
+                String[] palabras = linea.split("\\s+");
+                for (String palabra : palabras) {
+                    Cuadro cuadro = new Cuadro();
+                    cuadro.asignarColores(palabra);
+                    cuadros.add(cuadro);
+                }
+            }
+        }
+
+        // Asegurarse de que no exceda el número de celdas
+        int maxCeldas = filas * columnas;
+        if (cuadros.size() > maxCeldas) {
+            JOptionPane.showMessageDialog(this, 
+                "El texto contiene más palabras de las que el tablero puede mostrar.",
+                "Advertencia", JOptionPane.WARNING_MESSAGE);
+        }
+
+        // Llenar el tablero con los cuadros
+        for (int i = 0; i < maxCeldas; i++) {
+            if (i < cuadros.size()) {
+                add(cuadros.get(i));
+            } else {
+                add(new Cuadro()); // Agregar cuadros vacíos para llenar el espacio
+            }
+        }
+        
+        revalidate();
+        repaint();
+    }
 }
+
