@@ -10,6 +10,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Element;
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -97,7 +101,6 @@ public class FramePrincipal extends javax.swing.JFrame {
         txaEditor.setEditable(true);
         txaEditor.setColumns(51); // Define un ancho de 20 columnas
         txaEditor.setFont(new Font("Monospaced", Font.PLAIN, 12)); // Fuente monoespaciada para alineación
-          ((AbstractDocument) txaEditor.getDocument()).setDocumentFilter(new limitarColumnas(50));
         jScrollPane1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
 
@@ -123,7 +126,7 @@ public class FramePrincipal extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         txaListaNumero = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
+        jbtExportarImagen = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
         jbtInicio = new javax.swing.JButton();
         jbtTerminar = new javax.swing.JButton();
@@ -152,7 +155,12 @@ public class FramePrincipal extends javax.swing.JFrame {
             .addGap(0, 364, Short.MAX_VALUE)
         );
 
-        jButton1.setText("Exportar Imagen");
+        jbtExportarImagen.setText("Exportar Imagen");
+        jbtExportarImagen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtExportarImagenActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Cargar archivo");
 
@@ -203,7 +211,7 @@ public class FramePrincipal extends javax.swing.JFrame {
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(35, 35, 35))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jButton1)
+                        .addComponent(jbtExportarImagen)
                         .addGap(27, 27, 27))))
         );
         layout.setVerticalGroup(
@@ -222,7 +230,7 @@ public class FramePrincipal extends javax.swing.JFrame {
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jButton1)
+                            .addComponent(jbtExportarImagen)
                             .addComponent(jbtTerminar)
                             .addComponent(lblPosicioCursor))))
                 .addGap(32, 32, 32))
@@ -270,50 +278,30 @@ public class FramePrincipal extends javax.swing.JFrame {
         actualizarCuadricula();
     }//GEN-LAST:event_jbtTerminarActionPerformed
 
+    private void jbtExportarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtExportarImagenActionPerformed
+        // TODO add your handling code here:
+        try {
+        // Crear una imagen en memoria
+            BufferedImage imagen = new BufferedImage(jPanel1.getWidth(), jPanel1.getHeight(), BufferedImage.TYPE_INT_RGB);
+
+            // Pintar el contenido del panel en la imagen
+            Graphics2D g2d = imagen.createGraphics();
+            jPanel1.paint(g2d);
+            g2d.dispose();
+
+            // Guardar la imagen en un archivo JPEG
+            File archivo = new File("cuadricula.jpg"); // Puedes cambiar el nombre y la ubicación del archivo
+            ImageIO.write(imagen, "jpg", archivo);
+
+            JOptionPane.showMessageDialog(this, "Imagen exportada con éxito a " + archivo.getAbsolutePath());
+        } catch (IOException e) {
+            JOptionPane.showMessageDialog(this, "Error al exportar la imagen: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_jbtExportarImagenActionPerformed
+
     /**
      * @param args the command line arguments
-     */
-    private static class limitarColumnas extends DocumentFilter {
-        private final int maxColumnas;
-
-        public limitarColumnas(int maxColumnas) {
-            this.maxColumnas = maxColumnas;
-        }
-
-        @Override
-        public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
-            if (isWithinColumnLimit(fb, offset, string)) {
-                super.insertString(fb, offset, string, attr);
-            }
-        }
-
-        @Override
-        public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
-            if (isWithinColumnLimit(fb, offset, text)) {
-                super.replace(fb, offset, length, text, attrs);
-            }
-        }
-
-        private boolean isWithinColumnLimit(FilterBypass fb, int offset, String text) throws BadLocationException {
-            // Obtener el texto actual del documento
-            String documentText = fb.getDocument().getText(0, fb.getDocument().getLength());
-
-            // Construir el texto después de la inserción o reemplazo
-            StringBuilder newText = new StringBuilder(documentText);
-            newText.insert(offset, text);
-
-            // Dividir el texto en líneas y verificar el límite de columnas
-            String[] lines = newText.toString().split("\n");
-            for (String line : lines) {
-                if (line.length() > maxColumnas) {
-                    return false; // Si una línea excede el límite, no permitir
-                }
-            }
-
-            return true; // Si está dentro del límite, permitir
-        }
-    }
-    
+     */  
     
     
     
@@ -347,13 +335,13 @@ public class FramePrincipal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JButton jbtExportarImagen;
     private javax.swing.JButton jbtInicio;
     private javax.swing.JButton jbtTerminar;
     private javax.swing.JLabel lblPosicioCursor;

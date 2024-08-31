@@ -5,9 +5,12 @@
 package Backend;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -21,7 +24,6 @@ import javax.swing.border.Border;
 public class Cuadricula extends JPanel{
     private int filas;
     private int columnas;
-    private static final String BACKGROUND_COLOR_HEX = "#FF33FF";
     
     public Cuadricula(int filas, int columnas){
         this.filas = filas;
@@ -35,7 +37,7 @@ public class Cuadricula extends JPanel{
         
     }
     
-       public void leerTexto(String texto) {
+    public void leerTexto(String texto) {
         // Limpiar el panel antes de llenar con nuevos cuadros
         removeAll();
 
@@ -51,12 +53,15 @@ public class Cuadricula extends JPanel{
                 cuadro.asignarColores(comentario);
                 cuadros.add(cuadro);
             } else {
-                // Dividir la línea en palabras
-                String[] palabras = linea.split("\\s+");
+                // Dividir la línea en palabras, operadores y delimitadores especiales
+                String[] palabras = linea.split("((?<=\\W)|(?=\\W))");
+
                 for (String palabra : palabras) {
-                    Cuadro cuadro = new Cuadro();
-                    cuadro.asignarColores(palabra);
-                    cuadros.add(cuadro);
+                    if (!palabra.trim().isEmpty()) {  // Ignorar espacios en blanco
+                        Cuadro cuadro = new Cuadro();
+                        cuadro.asignarColores(palabra.trim());
+                        cuadros.add(cuadro);
+                    }
                 }
             }
         }
@@ -77,9 +82,13 @@ public class Cuadricula extends JPanel{
                 add(new Cuadro()); // Agregar cuadros vacíos para llenar el espacio
             }
         }
-        
+
         revalidate();
         repaint();
     }
 }
+
+
+
+
 

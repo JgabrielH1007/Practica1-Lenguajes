@@ -95,7 +95,7 @@ public class Cuadro extends JLabel{
                 ||palabra.equals("Loop")||palabra.equals("For")||palabra.equals("To")||palabra.equals("Next")
                 ||palabra.equals("Function")||palabra.equals("Return")||palabra.equals("Const")){
             setBackground(Color.decode(COLOR_PALABRA_RESERVADA));
-        }else if (palabra.matches("^[A-Za-z][A-Za-z0-9_]*$")) {
+        }else if (isIdentificador(palabra)) {
         // Verificar si la palabra empieza con una letra y contiene solo letras, dígitos o _
             setBackground(Color.decode(COLOR_IDENTIFICADOR));  // Definir color para identificadores
         }else if (palabra.startsWith("\"") && palabra.endsWith("\"")) {
@@ -120,26 +120,65 @@ public class Cuadro extends JLabel{
             setBackground(Color.decode(COLOR_COMA));
         }else if(palabra.equals(".")){
             setBackground(Color.decode(COLOR_PUNTO));
-        } else {
-            try {
-                Integer.parseInt(palabra);
-                setBackground(Color.decode(COLOR_ENTERO));
-            } catch (NumberFormatException e1) {
+        }else if (palabra.startsWith("Square.Color(") && palabra.endsWith(")")) {
+        // Extraer el parámetro del color dentro de los paréntesis
+        // Extraer el parámetro del color dentro de los paréntesis
+            String colorHex = palabra.substring(13, palabra.length() - 1).trim();
+
+            // Verificar si el color comienza con "#" y tiene exactamente 7 caracteres (# seguido de 6)
+            if (colorHex.length() == 7 && colorHex.charAt(0) == '#') {
                 try {
-                    // Intentar convertir la palabra a un número decimal
-                    Double.parseDouble(palabra);
-                    setBackground(Color.decode(COLOR_DECIMAL));
-                } catch (NumberFormatException e2) {
-                JOptionPane.showMessageDialog(null,"PALABRA O EXPRESIÓN NO ACEPTADA.","NO ACEPTADA",JOptionPane.ERROR_MESSAGE);                
-                error = true;
+                    // Intentar convertir el color hexadecimal
+                    setBackground(Color.decode(colorHex));
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Color no válido: " + colorHex, "Error", JOptionPane.ERROR_MESSAGE);
+                    error = true;
                 }
+            } else {
+                JOptionPane.showMessageDialog(null, "Formato de color no válido: " + colorHex, "Error", JOptionPane.ERROR_MESSAGE);
+                error = true;
+            } 
+        } else {
+        try {
+            Integer.parseInt(palabra);
+            setBackground(Color.decode(COLOR_ENTERO));
+        } catch (NumberFormatException e1) {
+            try {
+                Double.parseDouble(palabra);
+                setBackground(Color.decode(COLOR_DECIMAL));
+            } catch (NumberFormatException e2) {
+                JOptionPane.showMessageDialog(null, "PALABRA O EXPRESIÓN NO ACEPTADA.", "NO ACEPTADA", JOptionPane.ERROR_MESSAGE);
+                error = true;
             }
         }
     }
+}
 
     public boolean isError() {
         return error;
     }
+    
+    private boolean isIdentificador(String palabra) {
+        if (palabra == null || palabra.isEmpty()) {
+            return false;
+        }
+
+        // Verificar que el primer carácter es una letra
+        if (!Character.isLetter(palabra.charAt(0))) {
+            return false;
+        }
+
+        // Verificar que el resto de los caracteres sean letras, dígitos o guiones bajos
+        for (int i = 1; i < palabra.length(); i++) {
+            char c = palabra.charAt(i);
+            if (!Character.isLetterOrDigit(c) && c != '_') {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     
     
     
