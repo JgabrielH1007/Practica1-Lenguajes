@@ -11,7 +11,9 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.Element;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.text.AbstractDocument;
@@ -33,7 +35,7 @@ public class FramePrincipal extends javax.swing.JFrame {
     /**
      * Creates new form FramePrincipal
      */
-    public FramePrincipal() {
+public FramePrincipal() {
         initComponents(); // Inicializar componentes generados por NetBeans
         dialogFilasColumnas = new DialogFilasColumnas(this, true);
         // Configuración básica del JFrame
@@ -43,7 +45,7 @@ public class FramePrincipal extends javax.swing.JFrame {
         setLocationRelativeTo(null);
         // Crear el JTextArea para el texto
         iniciarLista();
-        
+        jbtCargarTexto.setEnabled(false);
         txaEditor.addCaretListener(e -> {
         int pos = txaEditor.getCaretPosition();
         try {
@@ -127,7 +129,7 @@ public class FramePrincipal extends javax.swing.JFrame {
         txaListaNumero = new javax.swing.JTextArea();
         jPanel1 = new javax.swing.JPanel();
         jbtExportarImagen = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        jbtCargarTexto = new javax.swing.JButton();
         jbtInicio = new javax.swing.JButton();
         jbtTerminar = new javax.swing.JButton();
         lblPosicioCursor = new javax.swing.JLabel();
@@ -162,7 +164,12 @@ public class FramePrincipal extends javax.swing.JFrame {
             }
         });
 
-        jButton2.setText("Cargar archivo");
+        jbtCargarTexto.setText("Cargar archivo");
+        jbtCargarTexto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtCargarTextoActionPerformed(evt);
+            }
+        });
 
         jbtInicio.setText("Iniciar");
         jbtInicio.addActionListener(new java.awt.event.ActionListener() {
@@ -195,7 +202,7 @@ public class FramePrincipal extends javax.swing.JFrame {
                         .addContainerGap()
                         .addComponent(jbtInicio)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton2))
+                        .addComponent(jbtCargarTexto))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -220,7 +227,7 @@ public class FramePrincipal extends javax.swing.JFrame {
                 .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jbtInicio)
-                    .addComponent(jButton2))
+                    .addComponent(jbtCargarTexto))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -244,7 +251,7 @@ public class FramePrincipal extends javax.swing.JFrame {
      dialogFilasColumnas.setVisible(true);
     filas = dialogFilasColumnas.getFilas();
     columnas = dialogFilasColumnas.getColumnas();
-
+    jbtCargarTexto.setEnabled(true);
     if (filas > 0 && columnas > 0) {
             // Configurar el tablero
             cuadricula = new Cuadricula(filas, columnas);
@@ -299,6 +306,34 @@ public class FramePrincipal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jbtExportarImagenActionPerformed
 
+    private void jbtCargarTextoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtCargarTextoActionPerformed
+        // TODO add your handling code here:
+        JFileChooser fileChooser = new JFileChooser();
+        int resultado = fileChooser.showOpenDialog(this);
+
+        // Verificar si el usuario seleccionó un archivo
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+            File archivo = fileChooser.getSelectedFile();
+            try {
+                // Leer el contenido del archivo seleccionado
+                StringBuilder contenido = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(new FileReader(archivo))) {
+                    String linea;
+                    while ((linea = reader.readLine()) != null) {
+                        contenido.append(linea).append("\n");
+                    }
+                }
+
+                // Establecer el contenido del área de texto (txaEditor)
+                txaEditor.setText(contenido.toString());
+            } catch (IOException e) {
+                // Manejar errores de lectura de archivo
+                JOptionPane.showMessageDialog(this, "Error al leer el archivo: " + e.getMessage(),
+                                              "Error", JOptionPane.ERROR_MESSAGE);
+            }
+    }
+    }//GEN-LAST:event_jbtCargarTextoActionPerformed
+
     /**
      * @param args the command line arguments
      */  
@@ -335,12 +370,12 @@ public class FramePrincipal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton2;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JButton jbtCargarTexto;
     private javax.swing.JButton jbtExportarImagen;
     private javax.swing.JButton jbtInicio;
     private javax.swing.JButton jbtTerminar;
