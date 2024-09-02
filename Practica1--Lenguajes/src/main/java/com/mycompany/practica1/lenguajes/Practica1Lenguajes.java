@@ -4,6 +4,9 @@
 
 package com.mycompany.practica1.lenguajes;
 
+import Fronted.FramePrincipal;
+import javax.swing.SwingUtilities;
+
 /**
  *
  * @author gabrielh
@@ -11,6 +14,7 @@ package com.mycompany.practica1.lenguajes;
 public class Practica1Lenguajes {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
-    }
+        SwingUtilities.invokeLater(() -> {
+            new FramePrincipal().setVisible(true);
+        });    }
 }

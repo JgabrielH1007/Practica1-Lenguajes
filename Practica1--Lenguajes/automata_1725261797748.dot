@@ -1,0 +1,8 @@
+digraph G {
+rankdir=LR;
+q0 -> q1 [label="'"];
+q1 -> q2 [label="s"];
+q2 -> q3 [label="d"];
+q3 -> q4 [label="f"];
+q4 [shape=doublecircle];
+}

@@ -26,6 +26,7 @@ import javax.swing.border.Border;
 public class Cuadricula extends JPanel{
     private int filas;
     private int columnas;
+    private List<Cuadro> cuadros;
 
     public Cuadricula(int filas, int columnas){
         this.filas = filas;
@@ -39,14 +40,14 @@ public class Cuadricula extends JPanel{
         
     }
     
-public void leerTexto(String texto) {
+    public void leerTexto(String texto) {
     // Limpiar el panel antes de llenar con nuevos cuadros
     removeAll();
 
     // Dividir el texto en líneas
     String[] lineas = texto.split("\\n");
 
-    List<Cuadro> cuadros = new ArrayList<>();
+    cuadros = new ArrayList<>();
     String[] operadoresCompuestos = {"==", ">=", "<=", "<>", "+=", "-=", "*=", "/="};
 
     for (int lineaNum = 0; lineaNum < lineas.length; lineaNum++) {
@@ -130,18 +131,19 @@ public void leerTexto(String texto) {
                 }
 
                 // Manejar otros caracteres y palabras
-                if (Character.isWhitespace(c) || !Character.isLetterOrDigit(c)) {
+                if (Character.isWhitespace(c) || (!Character.isLetterOrDigit(c) && c != '.')) { // Modificación aquí
+                    // Revisar si el buffer contiene un número decimal
                     if (buffer.length() > 0) {
-                        cuadros.add(new Cuadro(buffer.toString().trim(), lineaNum + 1, columnaNum+1 ));
+                        cuadros.add(new Cuadro(buffer.toString().trim(), lineaNum + 1, columnaNum + 1));
                         buffer.setLength(0);
                     }
                     if (!Character.isWhitespace(c)) {
-                        cuadros.add(new Cuadro(String.valueOf(c), lineaNum + 1, columnaNum + 1 ));
+                        cuadros.add(new Cuadro(String.valueOf(c), lineaNum + 1, columnaNum + 1));
                     }
                     columnaNum++;
                 } else {
                     if (buffer.length() == 0) {
-                        columnaNum = i ; // Guardar la columna de inicio si el buffer estaba vacío
+                        columnaNum = i; // Guardar la columna de inicio si el buffer estaba vacío
                     }
                     buffer.append(c);
                 }
@@ -150,11 +152,7 @@ public void leerTexto(String texto) {
 
         // Si hay contenido en el buffer después de terminar de procesar la línea, agregarlo como un cuadro
         if (buffer.length() > 0) {
-            if (dentroComentario) {
-                cuadros.add(new Cuadro(buffer.toString().trim(), lineaNum + 1, columnaNum + 1));
-            } else {
-                cuadros.add(new Cuadro(buffer.toString().trim(), lineaNum + 1, columnaNum + 1));
-            }
+            cuadros.add(new Cuadro(buffer.toString().trim(), lineaNum + 1, columnaNum + 1));
         }
     }
 
@@ -188,6 +186,11 @@ public void leerTexto(String texto) {
     repaint();
 }
 
+    
+    public void generarReporte(){
+        Reporte reporte = new Reporte(cuadros);
+        reporte.setVisible(true);
+    }
 
 
 

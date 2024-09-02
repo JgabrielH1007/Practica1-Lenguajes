@@ -194,7 +194,8 @@ public class Cuadro extends JLabel  {
             String colorHex = palabra.substring(13, palabra.length() - 1).trim();
             if (colorHex.length() == 7 && colorHex.charAt(0) == '#') {
                 try {
-                    setBackground(Color.decode(colorHex));
+                    colorActual = Color.decode(colorHex);
+                    setBackground(colorActual);
                 } catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(null, "Color no válido: " + colorHex, "Error", JOptionPane.ERROR_MESSAGE);
                     error = true;
@@ -310,7 +311,7 @@ public class Cuadro extends JLabel  {
 
 
 
-        private String determinarTipoExpresion(String expresion) {
+        public String determinarTipoExpresion(String expresion) {
             // Determinar el tipo de expresión basado en el contenido
             switch (expresion) {
                 case "+": return "Suma";
@@ -411,10 +412,42 @@ public class Cuadro extends JLabel  {
     public void setColumnaCuadricula(int columnaCuadricula) {
         this.columnaCuadricula = columnaCuadricula;
     }
-        
-        
-        
+
+    public Color getColorActual() {
+        return colorActual;
     }
+
+    public void setColorActual(Color colorActual) {
+        this.colorActual = colorActual;
+    }
+
+    public String getTexto() {
+        return texto;
+    }
+
+    public void setTexto(String texto) {
+        this.texto = texto;
+    }
+
+    public int getFila() {
+        return fila;
+    }
+
+    public void setFila(int fila) {
+        this.fila = fila;
+    }
+
+    public int getColumna() {
+        return columna;
+    }
+
+    public void setColumna(int columna) {
+        this.columna = columna;
+    }
+    
+    
+    
+}
     
    
    

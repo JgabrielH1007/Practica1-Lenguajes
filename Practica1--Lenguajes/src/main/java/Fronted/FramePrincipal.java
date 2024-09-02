@@ -46,6 +46,7 @@ public FramePrincipal() {
         // Crear el JTextArea para el texto
         iniciarLista();
         jbtCargarTexto.setEnabled(false);
+        jbtReportes.setEnabled(false);
         txaEditor.addCaretListener(e -> {
         int pos = txaEditor.getCaretPosition();
         try {
@@ -133,8 +134,7 @@ public FramePrincipal() {
         jbtInicio = new javax.swing.JButton();
         jbtTerminar = new javax.swing.JButton();
         lblPosicioCursor = new javax.swing.JLabel();
-        jMenuBar1 = new javax.swing.JMenuBar();
-        jMenu2 = new javax.swing.JMenu();
+        jbtReportes = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -187,10 +187,12 @@ public FramePrincipal() {
 
         lblPosicioCursor.setText("Fila: 1 , Columna: 1");
 
-        jMenu2.setText("Reportes");
-        jMenuBar1.add(jMenu2);
-
-        setJMenuBar(jMenuBar1);
+        jbtReportes.setText("Reportes");
+        jbtReportes.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jbtReportesActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -202,7 +204,9 @@ public FramePrincipal() {
                         .addContainerGap()
                         .addComponent(jbtInicio)
                         .addGap(18, 18, 18)
-                        .addComponent(jbtCargarTexto))
+                        .addComponent(jbtCargarTexto)
+                        .addGap(28, 28, 28)
+                        .addComponent(jbtReportes))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 57, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
@@ -227,8 +231,9 @@ public FramePrincipal() {
                 .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jbtInicio)
-                    .addComponent(jbtCargarTexto))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 30, Short.MAX_VALUE)
+                    .addComponent(jbtCargarTexto)
+                    .addComponent(jbtReportes))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 55, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 364, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
@@ -248,31 +253,32 @@ public FramePrincipal() {
 
     private void jbtInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtInicioActionPerformed
         // TODO add your handling code here:
-     dialogFilasColumnas.setVisible(true);
-    filas = dialogFilasColumnas.getFilas();
-    columnas = dialogFilasColumnas.getColumnas();
-    jbtCargarTexto.setEnabled(true);
-    if (filas > 0 && columnas > 0) {
-            // Configurar el tablero
-            cuadricula = new Cuadricula(filas, columnas);
+        dialogFilasColumnas.setVisible(true);
+        filas = dialogFilasColumnas.getFilas();
+        columnas = dialogFilasColumnas.getColumnas();
+        jbtCargarTexto.setEnabled(true);
 
-            // Limpiar jPanel1 antes de agregar la cuadrícula
-            jPanel1.removeAll();
+        if (filas > 0 && columnas > 0) {
+                // Configurar el tablero
+                cuadricula = new Cuadricula(filas, columnas);
 
-            // Añadir la cuadrícula al panel
-            jPanel1.setLayout(new BorderLayout()); // Asegúrate de que jPanel1 use un BorderLayout
-            jPanel1.add(cuadricula, BorderLayout.CENTER);
+                // Limpiar jPanel1 antes de agregar la cuadrícula
+                jPanel1.removeAll();
 
-            // Ajustar el tamaño de jPanel1
-            jPanel1.revalidate();
-            jPanel1.repaint();
+                // Añadir la cuadrícula al panel
+                jPanel1.setLayout(new BorderLayout()); // Asegúrate de que jPanel1 use un BorderLayout
+                jPanel1.add(cuadricula, BorderLayout.CENTER);
 
-            // Habilitar los JTextArea
-            txaEditor.setEnabled(true);
-            txaListaNumero.setEnabled(true);
-            jbtInicio.setEnabled(false);
-            pack();
-        }
+                // Ajustar el tamaño de jPanel1
+                jPanel1.revalidate();
+                jPanel1.repaint();
+
+                // Habilitar los JTextArea
+                txaEditor.setEnabled(true);
+                txaListaNumero.setEnabled(true);
+                jbtInicio.setEnabled(false);
+                pack();
+            }
     }//GEN-LAST:event_jbtInicioActionPerformed
     
     private void actualizarCuadricula() {
@@ -282,13 +288,23 @@ public FramePrincipal() {
     
     private void jbtTerminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtTerminarActionPerformed
         // TODO add your handling code here:
+        jbtReportes.setEnabled(true);
         actualizarCuadricula();
     }//GEN-LAST:event_jbtTerminarActionPerformed
 
     private void jbtExportarImagenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtExportarImagenActionPerformed
         // TODO add your handling code here:
         try {
-        // Crear una imagen en memoria
+            // Crear la carpeta ImagenCuadricula si no existe
+            File carpeta = new File("ImagenCuadricula");
+            if (!carpeta.exists()) {
+                if (!carpeta.mkdir()) {
+                    JOptionPane.showMessageDialog(this, "No se pudo crear la carpeta ImagenCuadricula.", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            // Crear una imagen en memoria
             BufferedImage imagen = new BufferedImage(jPanel1.getWidth(), jPanel1.getHeight(), BufferedImage.TYPE_INT_RGB);
 
             // Pintar el contenido del panel en la imagen
@@ -296,8 +312,8 @@ public FramePrincipal() {
             jPanel1.paint(g2d);
             g2d.dispose();
 
-            // Guardar la imagen en un archivo JPEG
-            File archivo = new File("cuadricula.jpg"); // Puedes cambiar el nombre y la ubicación del archivo
+            // Guardar la imagen en un archivo JPEG dentro de la carpeta ImagenCuadricula
+            File archivo = new File(carpeta, "cuadricula.jpg"); // Puedes cambiar el nombre del archivo si lo deseas
             ImageIO.write(imagen, "jpg", archivo);
 
             JOptionPane.showMessageDialog(this, "Imagen exportada con éxito a " + archivo.getAbsolutePath());
@@ -334,50 +350,27 @@ public FramePrincipal() {
     }
     }//GEN-LAST:event_jbtCargarTextoActionPerformed
 
+    private void jbtReportesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbtReportesActionPerformed
+        // TODO add your handling code here:
+        cuadricula.generarReporte();
+    }//GEN-LAST:event_jbtReportesActionPerformed
+
     /**
      * @param args the command line arguments
      */  
     
     
-    
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(FramePrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(FramePrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(FramePrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(FramePrincipal.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        SwingUtilities.invokeLater(() -> {
-            new FramePrincipal().setVisible(true);
-        });
-    }
+   
+  
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JButton jbtCargarTexto;
     private javax.swing.JButton jbtExportarImagen;
     private javax.swing.JButton jbtInicio;
+    private javax.swing.JButton jbtReportes;
     private javax.swing.JButton jbtTerminar;
     private javax.swing.JLabel lblPosicioCursor;
     private javax.swing.JTextArea txaEditor;
