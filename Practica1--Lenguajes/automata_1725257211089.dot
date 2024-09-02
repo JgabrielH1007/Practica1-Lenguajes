@@ -1,0 +1,5 @@
+digraph G {
+rankdir=LR;
+q0 -> q1 [label="2"];
+q1 [shape=doublecircle];
+}

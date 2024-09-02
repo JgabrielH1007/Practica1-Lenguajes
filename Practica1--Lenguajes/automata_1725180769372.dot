@@ -1,6 +1,0 @@
-digraph G {
-rankdir=LR;
-q0 -> q1 [label="*"];
-q1 -> q2 [label="="];
-q2 [shape=doublecircle];
-}

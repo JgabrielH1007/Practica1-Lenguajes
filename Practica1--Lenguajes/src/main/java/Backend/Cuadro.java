@@ -11,6 +11,7 @@ import guru.nidi.graphviz.model.MutableGraph;
 import guru.nidi.graphviz.model.Node;
 import guru.nidi.graphviz.model.Factory;
 import guru.nidi.graphviz.model.MutableNode;
+import java.awt.BorderLayout;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -30,6 +31,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 public class Cuadro extends JLabel  {
@@ -66,9 +68,15 @@ public class Cuadro extends JLabel  {
     private boolean error = false;
     private Color colorActual;
     private String texto;
+    private int fila;
+    private int columna;
+    private int filaCuadricula;
+    private int columnaCuadricula;
     
-    public Cuadro(String texto) {
+    public Cuadro(String texto, int fila, int columna) {
             this.texto = texto;
+            this.fila = fila;
+            this.columna = columna;
             setBorder(BorderFactory.createLineBorder(Color.BLACK));
             setOpaque(true);
             asignarColores(texto);
@@ -152,6 +160,9 @@ public class Cuadro extends JLabel  {
                 || palabra.equals("Function") || palabra.equals("Return") || palabra.equals("Const")) {
             colorActual = Color.decode(COLOR_PALABRA_RESERVADA);
             setBackground(colorActual);
+        }else if (palabra.equals("True")||palabra.equals("False")) {
+            colorActual = Color.decode(COLOR_BOOLEANO);
+            setBackground(colorActual);
         } else if (isIdentificador(palabra)) {
             colorActual = Color.decode(COLOR_IDENTIFICADOR);
             setBackground(colorActual);
@@ -160,12 +171,6 @@ public class Cuadro extends JLabel  {
             setBackground(colorActual);
         } else if (palabra.startsWith("'") && palabra.endsWith("'") && palabra.length() == 3) {
             colorActual = Color.decode(COLOR_CARACTER);
-            setBackground(colorActual);
-        } else if (palabra.equals("True")) {
-            colorActual = Color.decode(COLOR_BOOLEANO);
-            setBackground(colorActual);
-        } else if (palabra.equals("False")) {
-            colorActual = Color.decode(COLOR_BOOLEANO);
             setBackground(colorActual);
         } else if (palabra.startsWith("'") && palabra.length() > 1) {
             colorActual = Color.decode(COLOR_COMENTARIO);
@@ -239,6 +244,7 @@ public class Cuadro extends JLabel  {
      private void mostrarDiagramaAutomata(String expresion) throws IOException {
             // Generar un nombre de archivo único basado en la marca de tiempo en milisegundos
             long timestamp = System.currentTimeMillis();
+            System.out.println("Fila cuadro: "+filaCuadricula+" Columnas cuadro: "+columnaCuadricula);
             String dotPath = "automata_" + timestamp + ".dot";
             File archivoImagen = new File("automata_" + timestamp + ".png");
 
@@ -256,31 +262,53 @@ public class Cuadro extends JLabel  {
             mostrarImagenEnDialogo(archivoImagen, tipoExpresion);
         }
 
-        private void crearArchivoDOT(String expresion, String dotPath) throws IOException {
-            StringBuilder dot = new StringBuilder("digraph G {\n");
-            dot.append("rankdir=LR;\n"); // Dirección de izquierda a derecha
+    private void crearArchivoDOT(String expresion, String dotPath) throws IOException {
+        StringBuilder dot = new StringBuilder("digraph G {\n");
+        dot.append("rankdir=LR;\n"); // Dirección de izquierda a derecha
 
-            // Crear los nodos y las transiciones para el autómata
-            for (int i = 0; i < expresion.length(); i++) {
-                dot.append("q").append(i).append(" -> ").append("q").append(i + 1).append(" [label=\"")
-                        .append(expresion.charAt(i)).append("\"];\n");
-            }
-            dot.append("q").append(expresion.length()).append(" [shape=doublecircle];\n"); // Estado final
-            dot.append("}");
+        // Crear los nodos y las transiciones para el autómata
+        for (int i = 0; i < expresion.length(); i++) {
+            char ch = expresion.charAt(i);
+            String label = String.valueOf(ch);
 
-            // Guardar el archivo DOT
-            try (FileWriter writer = new FileWriter(dotPath)) {
-                writer.write(dot.toString());
-            }
+            // Escapar caracteres especiales en Graphviz (comillas, barras, etc.)
+            label = label.replace("\"", "\\\"");
+
+            dot.append("q").append(i).append(" -> ").append("q").append(i + 1).append(" [label=\"")
+                .append(label).append("\"];\n");
         }
+        dot.append("q").append(expresion.length()).append(" [shape=doublecircle];\n"); // Estado final
+        dot.append("}");
 
-        private void mostrarImagenEnDialogo(File archivoImagen, String tipoExpresion) {
-            ImageIcon icon = new ImageIcon(archivoImagen.getAbsolutePath());
-            JLabel label = new JLabel(icon);
-            JScrollPane scrollPane = new JScrollPane(label);
-            scrollPane.setPreferredSize(new Dimension(600, 400));
-            JOptionPane.showMessageDialog(null, scrollPane, "Diagrama del Autómata - " + tipoExpresion, JOptionPane.INFORMATION_MESSAGE);
+        // Guardar el archivo DOT
+        try (FileWriter writer = new FileWriter(dotPath)) {
+            writer.write(dot.toString());
         }
+    }
+
+
+    private void mostrarImagenEnDialogo(File archivoImagen, String tipoExpresion) {
+        // Crear el ImageIcon y el JLabel para la imagen
+        ImageIcon icon = new ImageIcon(archivoImagen.getAbsolutePath());
+        JLabel imageLabel = new JLabel(icon);
+        JScrollPane scrollPane = new JScrollPane(imageLabel);
+        scrollPane.setPreferredSize(new Dimension(600, 400));
+
+        // Crear el JLabel para la información
+        String mensaje = String.format("%s \nLINEA: %d, COLUMNA: %d --> CUADRO[%d,%d]", tipoExpresion, fila, columna, filaCuadricula, columnaCuadricula);
+        JLabel infoLabel = new JLabel(mensaje);
+
+        // Crear un panel para colocar la información y la imagen
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(infoLabel, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
+
+        // Mostrar el JOptionPane con la información y la imagen
+        JOptionPane.showMessageDialog(null, panel, "Diagrama del Autómata", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+
 
         private String determinarTipoExpresion(String expresion) {
             // Determinar el tipo de expresión basado en el contenido
@@ -357,17 +385,36 @@ public class Cuadro extends JLabel  {
                             Integer.parseInt(expresion);
                             return "Entero";
                         } catch (NumberFormatException e1) {
-                            try {
-                                Double.parseDouble(expresion);
-                                return "Decimal";
-                            } catch (NumberFormatException e2) {
-                                return "Square.Color";
-                            }
+                        try {
+                            Double.parseDouble(expresion);
+                            return "Decimal";
+                        } catch (NumberFormatException e2) {
+                            return "Square.Color";
                         }
                     }
                 }
             }
-}
+        }
+
+    public int getFilaCuadricula() {
+        return filaCuadricula;
+    }
+
+    public void setFilaCuadricula(int filaCuadricula) {
+        this.filaCuadricula = filaCuadricula;
+    }
+
+    public int getColumnaCuadricula() {
+        return columnaCuadricula;
+    }
+
+    public void setColumnaCuadricula(int columnaCuadricula) {
+        this.columnaCuadricula = columnaCuadricula;
+    }
+        
+        
+        
+    }
     
    
    
