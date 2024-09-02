@@ -16,8 +16,8 @@ import java.util.List;
 
 public class Reporte extends JFrame {
 
-    private JTable table;
-    private DefaultTableModel tableModel;
+    private JTable tabla;
+    private DefaultTableModel modeloTabla;
 
     public Reporte(List<Cuadro> cuadros) {
         setTitle("Reporte de Tokens");
@@ -25,73 +25,74 @@ public class Reporte extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        String[] columnNames = {"Token", "Lexema", "Fila", "Columna", "Cuadro"};
-        tableModel = new DefaultTableModel(columnNames, 0) {
+        String[] nombresColumnas = {"Token", "Lexema", "Fila", "Columna", "Cuadro"};
+        modeloTabla = new DefaultTableModel(nombresColumnas, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
+            public boolean isCellEditable(int fila, int columna) {
                 // Deshabilitar la edición para todas las celdas
                 return false;
             }
         };
-        table = new JTable(tableModel);
+        tabla = new JTable(modeloTabla);
 
         // Ajustar la altura de las filas
-        table.setRowHeight(65); // Ajusta el valor a la altura deseada
+        tabla.setRowHeight(65); // Ajusta el valor a la altura deseada
 
         // Evitar que las columnas se puedan mover
-        table.getTableHeader().setReorderingAllowed(false);
+        tabla.getTableHeader().setReorderingAllowed(false);
 
         // Configurar el renderizador de celdas para la columna "Cuadro"
-        table.getColumnModel().getColumn(4).setCellRenderer(new MultiLineCellRenderer());
+        tabla.getColumnModel().getColumn(4).setCellRenderer(new RenderizadorCeldaMultiLinea());
 
-        populateTable(cuadros);
+        llenarTabla(cuadros);
 
-        JScrollPane scrollPane = new JScrollPane(table);
+        JScrollPane scrollPane = new JScrollPane(tabla);
         add(scrollPane, BorderLayout.CENTER);
     }
 
-    public void populateTable(List<Cuadro> cuadros) {
+    public void llenarTabla(List<Cuadro> cuadros) {
         for (Cuadro cuadro : cuadros) {
-            String token = identifyToken(cuadro.getTexto(), cuadro); // Implement this method based on your needs
+            String token = identificarToken(cuadro.getTexto(), cuadro); // Implementar este método según sea necesario
             String lexema = cuadro.getTexto();
-            int linea = cuadro.getFila();
+            int fila = cuadro.getFila();
             int columna = cuadro.getColumna();
-            String colorHex = colorToHex(cuadro.getColorActual()); // Obtener el código de color
-            String cuadroInfo = String.format("Fila: %d\nColumna: %d\nColor: %s", 
+            String colorHex = colorAHex(cuadro.getColorActual()); // Obtener el código de color
+            String infoCuadro = String.format("Fila: %d\nColumna: %d\nColor: %s", 
                 cuadro.getFilaCuadricula(), 
                 cuadro.getColumnaCuadricula(), 
                 colorHex); // Actualizar el color en formato hexadecimal
             
-            tableModel.addRow(new Object[]{token, lexema, linea, columna, cuadroInfo});
+            modeloTabla.addRow(new Object[]{token, lexema, fila, columna, infoCuadro});
         }
     }
 
-    private String identifyToken(String texto, Cuadro cuadro) {
+    private String identificarToken(String texto, Cuadro cuadro) {
        return cuadro.determinarTipoExpresion(texto);
     }
 
-    private String colorToHex(Color color) {
+    private String colorAHex(Color color) {
         return String.format("#%02X%02X%02X", color.getRed(), color.getGreen(), color.getBlue());
     }
 
     // Clase para el renderizador de celdas multi-línea
-    private static class MultiLineCellRenderer extends JTextArea implements TableCellRenderer {
-        public MultiLineCellRenderer() {
+    private static class RenderizadorCeldaMultiLinea extends JTextArea implements TableCellRenderer {
+        public RenderizadorCeldaMultiLinea() {
             setLineWrap(true);
             setWrapStyleWord(true);
             setOpaque(true);
         }
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                                                       boolean isSelected, boolean hasFocus, int row, int column) {
-            setText(value == null ? "" : value.toString());
-            setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
-            setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+        public Component getTableCellRendererComponent(JTable tabla, Object valor,
+                                                       boolean estaSeleccionado, boolean tieneFoco, int fila, int columna) {
+            setText(valor == null ? "" : valor.toString());
+            setBackground(estaSeleccionado ? tabla.getSelectionBackground() : tabla.getBackground());
+            setForeground(estaSeleccionado ? tabla.getSelectionForeground() : tabla.getForeground());
             return this;
         }
     }
 }
+
 
 
 
